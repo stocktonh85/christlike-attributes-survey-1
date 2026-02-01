@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Christlike Attributes Strengths Survey</title>
+  <style>
+    :root{
+      --bg:#0b0f17; --card:#101826; --text:#e8eefc; --muted:#a9b6d6;
+      --line:#1d2a44; --accent:#7aa2ff; --good:#8fe3b1;
+    }
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;}
+    .wrap{max-width:900px;margin:0 auto;padding:20px 14px 60px;}
+    h1{font-size:22px;margin:18px 0 6px;}
+    p{line-height:1.45;color:var(--muted);margin:8px 0;}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:14px 0;}
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;}
+    .pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:6px 10px;color:var(--muted);font-size:12px;}
+    .section-title{font-size:16px;margin:0 0 10px;color:var(--text);}
+    .q{padding:12px 0;border-top:1px solid var(--line);}
+    .q:first-of-type{border-top:none;}
+    .q .qt{color:var(--text);font-size:14px;margin:0 0 10px;}
+    .scale{display:flex;gap:8px;flex-wrap:wrap;}
+    .opt{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:12px;padding:8px 10px;cursor:pointer;user-select:none;}
+    .opt input{accent-color:var(--accent);}
+    .opt span{font-size:13px;color:var(--muted);}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+    button{border:1px solid var(--line);background:#0f1b2e;color:var(--text);padding:10px 12px;border-radius:12px;cursor:pointer;font-weight:600;}
+    button.primary{background:var(--accent);border-color:transparent;color:#071021;}
+    button:disabled{opacity:.5;cursor:not-allowed;}
+    .err{color:#ffb4b4;background:#2a0f17;border:1px solid #4b1a26;border-radius:12px;padding:10px 12px;margin:12px 0;display:none;}
+    .results h2{margin:0 0 10px;font-size:18px;}
+    .results h3{margin:16px 0 8px;font-size:15px;color:var(--text);}
+    .box{border:1px solid var(--line);border-radius:14px;padding:12px 12px;margin:10px 0;background:#0e1523;}
+    .strong{color:var(--good);font-weight:700;}
+    .small{font-size:12px;color:var(--muted);}
+    .footer{margin-top:16px}
+    a{color:var(--accent);}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="row">
+      <div>
+        <h1>Christlike Attributes Strengths Survey</h1>
+        <p class="small">Anonymous • For personal reflection • Immediate results</p>
+      </div>
+      <div class="pill">1 = Never • 2 = Sometimes • 3 = Often • 4 = Almost Always • 5 = Always</div>
+    </div>
+
+    <div class="card">
+      <p>
+        There are no right or wrong answers. This is not a test. Answer based on what feels true <em>right now</em>.
+        This survey stores nothing—your answers stay on your device.
+      </p>
+    </div>
+
+    <div id="error" class="err"></div>
+
+    <form id="survey"></form>
+
+    <div class="card actions">
+      <button type="button" id="btnResults" class="primary">Show my results</button>
+      <button type="button" id="btnReset">Reset</button>
+    </div>
+
+    <div id="results" class="card results" style="display:none;"></div>
+
+    <div class="footer small">
+      Tip: You can share this link as a QR code after you publish it on GitHub Pages.
+    </div>
+  </div>
+
+<script>
+  const ATTRIBUTES = [
+    {
+      name: "Faith",
+      desc: "You trust in Jesus Christ and act with confidence in His promises.",
+      items: [
+        "I believe in Christ and accept Him as my Savior.",
+        "I feel confident that God loves me.",
+        "I trust the Savior enough to accept His will and do what He asks.",
+        "I believe that through the Atonement of Jesus Christ and the power of the Holy Ghost, I can be forgiven of my sins and sanctified as I repent.",
+        "I have faith that God hears and answers my prayers.",
+        "I think about the Savior during the day and remember what He has done for me.",
+        "I have faith that God will bring about good things in my life and the lives of others as we devote ourselves to Him and His Son.",
+        "I know by the power of the Holy Ghost that the Book of Mormon is true.",
+        "I have faith to accomplish what Christ wants me to do."
+      ]
+    },
+    {
+      name: "Hope",
+      desc: "You look forward with peace and optimism, trusting God’s eternal promises.",
+      items: [
+        "One of my greatest desires is to inherit eternal life in the celestial kingdom.",
+        "I am confident that I will have a happy and successful mission.",
+        "I feel peaceful and optimistic about the future.",
+        "I believe that someday I will dwell with God and become like Him."
+      ]
+    },
+    {
+      name: "Charity and Love",
+      desc: "You sincerely care about others and seek to lift, understand, and serve.",
+      items: [
+        "I feel a sincere desire for the eternal welfare and happiness of others.",
+        "When I pray, I ask for charity—the pure love of Christ.",
+        "I try to understand others’ feelings and see their point of view.",
+        "I forgive others who have offended or wronged me.",
+        "I reach out in love to help those who are lonely, struggling, or discouraged.",
+        "When appropriate, I express my love and care for others through word and deed.",
+        "I look for opportunities to serve others.",
+        "I say positive things about others.",
+        "I am kind and patient with others, even when they are hard to get along with.",
+        "I find joy in others’ achievements."
+      ]
+    },
+    {
+      name: "Virtue",
+      desc: "You seek purity in heart and mind and strive to live in a way that invites the Spirit.",
+      items: [
+        "I am clean and pure in heart.",
+        "I desire to do good.",
+        "I focus on righteous, uplifting thoughts and put unwholesome thoughts out of my mind.",
+        "I repent of my sins and strive to overcome my weaknesses.",
+        "I feel the influence of the Holy Ghost in my life."
+      ]
+    },
+    {
+      name: "Integrity",
+      desc: "You aim to be honest and consistent with God, yourself, and others.",
+      items: [
+        "I am true to God at all times.",
+        "I do not lower my standards or behavior so I can impress or be accepted by others.",
+        "I am honest with God, myself, my leaders, and others.",
+        "I am dependable."
+      ]
+    },
+    {
+      name: "Knowledge",
+      desc: "You value gospel learning and seek truth through study and the Spirit.",
+      items: [
+        "I feel confident in my understanding of gospel doctrine and principles.",
+        "I study the scriptures daily.",
+        "I seek to understand the truth and find answers to my questions.",
+        "I seek knowledge and guidance through the Spirit.",
+        "I cherish the doctrine and principles of the gospel."
+      ]
+    },
+    {
+      name: "Patience",
+      desc: "You trust God’s timing and endure challenges with steady faith.",
+      items: [
+        "I wait patiently for the blessings and promises of the Lord to be fulfilled.",
+        "I am able to wait for things without getting upset or frustrated.",
+        "I am patient with the challenges of being a missionary.",
+        "I am patient with others.",
+        "I am patient with myself and rely on the Lord as I work to overcome my weaknesses.",
+        "I face adversity with patience and faith."
+      ]
+    },
+    {
+      name: "Humility",
+      desc: "You rely on God, stay teachable, and respond with gratitude.",
+      items: [
+        "I am meek and lowly in heart.",
+        "I rely on God for help.",
+        "I am grateful for the blessings I have received from God.",
+        "My prayers are earnest and sincere.",
+        "I appreciate direction from my leaders or teachers.",
+        "I strive to be submissive to God’s will."
+      ]
+    },
+    {
+      name: "Diligence",
+      desc: "You work steadily and purposefully and find meaning in effort and responsibility.",
+      items: [
+        "I work effectively, even when I’m not under close supervision.",
+        "I focus my efforts on the most important things.",
+        "I have a personal prayer at least twice a day.",
+        "I focus my thoughts on my calling as a missionary.",
+        "I set goals and plan regularly.",
+        "I work hard until the job is completed.",
+        "I find joy and satisfaction in my work."
+      ]
+    },
+    {
+      name: "Obedience",
+      desc: "You willingly align your life with God’s commandments and inspired counsel.",
+      items: [
+        "When I pray, I ask for strength to resist temptation and to do what is right.",
+        "I am worthy to have a temple recommend.",
+        "I willingly obey mission rules and follow the counsel of my leaders.",
+        "I strive to live in accordance with the laws and principles of the gospel."
+      ]
+    }
+  ];
+
+  const SCALE = [
+    { v: 1, label: "1 – Never" },
+    { v: 2, label: "2 – Sometimes" },
+    { v: 3, label: "3 – Often" },
+    { v: 4, label: "4 – Almost Always" },
+    { v: 5, label: "5 – Always" },
+  ];
+
+  const surveyEl = document.getElementById("survey");
+  const errorEl = document.getElementById("error");
+  const resultsEl = document.getElementById("results");
+
+  function esc(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+  function buildSurvey(){
+    surveyEl.innerHTML = "";
+    ATTRIBUTES.forEach((a, ai) => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `<div class="section-title">${esc(a.name)}</div>`;
+      a.items.forEach((q, qi) => {
+        const qId = `q_${ai}_${qi}`;
+        const block = document.createElement("div");
+        block.className = "q";
+        block.innerHTML = `<div class="qt">${esc(q)}</div>`;
+        const scale = document.createElement("div");
+        scale.className = "scale";
+        SCALE.forEach(opt => {
+          const label = document.createElement("label");
+          label.className = "opt";
+          label.innerHTML = `
+            <input type="radio" name="${qId}" value="${opt.v}" aria-label="${opt.label}">
+            <span>${esc(opt.label)}</span>
+          `;
+          scale.appendChild(label);
+        });
+        block.appendChild(scale);
+        card.appendChild(block);
+      });
+      surveyEl.appendChild(card);
+    });
+  }
+
+  function getAnswer(name){
+    const el = document.querySelector(`input[name="${name}"]:checked`);
+    return el ? Number(el.value) : null;
+  }
+
+  function computeScores(){
+    const scores = {};
+    const missing = [];
+
+    ATTRIBUTES.forEach((a, ai) => {
+      const vals = [];
+      a.items.forEach((_, qi) => {
+        const qName = `q_${ai}_${qi}`;
+        const v = getAnswer(qName);
+        if (v === null) missing.push(qName);
+        else vals.push(v);
+      });
+      if (vals.length !== a.items.length) {
+        scores[a.name] = null;
+      } else {
+        scores[a.name] = vals.reduce((s,x)=>s+x,0) / vals.length; // average 1..5
+      }
+    });
+
+    return { scores, missing };
+  }
+
+  function rankTop2(scores){
+    const list = Object.entries(scores)
+      .map(([name, score]) => ({ name, score }))
+      .sort((a,b) => (b.score - a.score) || a.name.localeCompare(b.name));
+    return list.slice(0,2);
+  }
+
+  function findLowest(scores){
+    const list = Object.entries(scores)
+      .map(([name, score]) => ({ name, score }))
+      .sort((a,b) => (a.score - b.score) || a.name.localeCompare(b.name));
+    return list[0];
+  }
+
+  function attrByName(name){
+    return ATTRIBUTES.find(a => a.name === name);
+  }
+
+  function showError(msg){
+    errorEl.style.display = "block";
+    errorEl.textContent = msg;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function clearError(){
+    errorEl.style.display = "none";
+    errorEl.textContent = "";
+  }
+
+  function renderResults(top2, focus){
+    const topA = attrByName(top2[0].name);
+    const topB = attrByName(top2[1].name);
+    const focA = attrByName(focus.name);
+
+    resultsEl.style.display = "block";
+    resultsEl.innerHTML = `
+      <h2>Your Results</h2>
+      <p>
+        This is meant to help you reflect, not judge yourself.
+        No one scores “always” in every area. Christlike growth is lifelong.
+      </p>
+
+      <h3>Christlike Strengths (Top 2)</h3>
+      <div class="box">
+        <div class="strong">${esc(topA.name)}</div>
+        <div class="small">${esc(topA.desc)}</div>
+      </div>
+      <div class="box">
+        <div class="strong">${esc(topB.name)}</div>
+        <div class="small">${esc(topB.desc)}</div>
+      </div>
+
+      <h3>Prayerful Focus Attribute</h3>
+      <div class="box">
+        <div class="strong">${esc(focA.name)}</div>
+        <div class="small">
+          This is not a weakness. It may be an area the Lord invites you to strengthen next.<br><br>
+          ${esc(focA.desc)}
+        </div>
+      </div>
+
+      <h3>Reflection</h3>
+      <div class="box">
+        <div class="small">
+          • How can I use one of my strengths to bless others?<br>
+          • What is one small action I could take this week to strengthen my focus attribute?
+        </div>
+      </div>
+
+      <p class="small">Note: If scores are tied, the survey picks a consistent order to keep results simple.</p>
+    `;
+    resultsEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  document.getElementById("btnResults").addEventListener("click", () => {
+    clearError();
+    const { scores, missing } = computeScores();
+    if (missing.length > 0) {
+      showError("Please answer every statement to see your results.");
+      return;
+    }
+
+    const top2 = rankTop2(scores);
+    const focus = findLowest(scores);
+    renderResults(top2, focus);
+  });
+
+  document.getElementById("btnReset").addEventListener("click", () => {
+    document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+    resultsEl.style.display = "none";
+    resultsEl.innerHTML = "";
+    clearError();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  buildSurvey();
+</script>
+</body>
+</html>
